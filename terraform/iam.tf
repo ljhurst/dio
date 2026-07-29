@@ -58,6 +58,9 @@ locals {
     : var.github_oidc_provider_arn
   )
 
+  github_repo_owner = split("/", var.github_repo)[0]
+  github_repo_name  = split("/", var.github_repo)[1]
+
   github_actions_oidc_condition = {
     StringEquals = {
       "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
@@ -65,7 +68,7 @@ locals {
     StringLike = {
       "token.actions.githubusercontent.com:sub" = [
         "repo:${var.github_repo}:ref:refs/heads/${var.github_actions_deploy_branch}",
-        "repo:${var.github_repo}@*:ref:refs/heads/${var.github_actions_deploy_branch}",
+        "repo:${local.github_repo_owner}@*/${local.github_repo_name}@*:ref:refs/heads/${var.github_actions_deploy_branch}",
       ]
     }
   }
