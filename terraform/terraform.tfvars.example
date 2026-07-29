@@ -1,0 +1,21 @@
+aws_region     = "us-east-1"
+environment    = "prod"
+project_name   = "dio"
+
+anthropic_api_key = ""
+anthropic_model   = "claude-haiku-4-5"
+
+github_repo                  = "ljhurst/dio"
+github_actions_deploy_branch = "main"
+
+# Set to false + provide github_oidc_provider_arn if aboutme's Terraform
+# already created the account-level GitHub OIDC provider.
+manage_github_oidc_provider = false
+github_oidc_provider_arn    = ""
+
+# Fill these in from Vercel's OIDC federation docs for the sommething
+# project before applying.
+vercel_oidc_issuer_url = ""
+vercel_oidc_thumbprint = ""
+vercel_oidc_audience   = "sts.amazonaws.com"
+vercel_oidc_subject    = ""

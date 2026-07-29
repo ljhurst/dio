@@ -1,0 +1,16 @@
+{
+    "producer": "Cloudline Cellars",
+    "wine_name": "Cloudline Pinot Noir",
+    "vintage": 2023,
+    "country_iso_alpha_3": "USA",
+    "region": "Willamette Valley",
+    "appellation": "Willamette Valley",
+    "grape_varieties": ["Pinot Noir"],
+    "abv_percent": 13.5,
+    "volume_ml": 750,
+    "wine_type": "red",
+    "classification": null,
+    "closure": null,
+    "certifications": [],
+    "barcode": "012086965319"
+}
