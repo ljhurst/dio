@@ -1,0 +1,17 @@
+{
+    "producer": "Cantina Zaccagnini",
+    "wine_name": "Montepulciano d'Abruzzo",
+    "vintage": 2021,
+    "country_iso_alpha_3": "ITA",
+    "region": "Abruzzo",
+    "appellation": "Montepulciano d'Abruzzo",
+    "grape_varieties": [],
+    "abv_percent": 13,
+    "volume_ml": 750,
+    "wine_type": "red",
+    "classification": "DOC",
+    "closure": null,
+    "certifications": [],
+    "barcode": "089475501014"
+}
+
