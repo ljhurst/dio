@@ -63,7 +63,10 @@ locals {
       "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
     }
     StringLike = {
-      "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:ref:refs/heads/${var.github_actions_deploy_branch}"
+      "token.actions.githubusercontent.com:sub" = [
+        "repo:${var.github_repo}:ref:refs/heads/${var.github_actions_deploy_branch}",
+        "repo:${var.github_repo}@*:ref:refs/heads/${var.github_actions_deploy_branch}",
+      ]
     }
   }
 }
@@ -75,7 +78,7 @@ resource "aws_iam_role" "github_actions_deploy" {
     Version = "2012-10-17"
     Statement = [{
       Effect = "Allow"
-      Action = "sts:AssumeRoleWithWebIdentity"
+      Action = ["sts:AssumeRoleWithWebIdentity", "sts:TagSession"]
       Principal = {
         Federated = local.github_oidc_provider_arn
       }
