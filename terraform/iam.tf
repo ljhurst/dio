@@ -139,7 +139,7 @@ resource "aws_iam_role" "sommething_invoke" {
           "${replace(var.vercel_oidc_issuer_url, "https://", "")}:aud" = var.vercel_oidc_audience
         }
         StringLike = {
-          "${replace(var.vercel_oidc_issuer_url, "https://", "")}:sub" = var.vercel_oidc_subject
+          "${replace(var.vercel_oidc_issuer_url, "https://", "")}:sub" = var.vercel_oidc_subjects
         }
       }
     }]
@@ -160,6 +160,16 @@ resource "aws_iam_role_policy" "sommething_invoke_function_url" {
         Condition = {
           StringEquals = {
             "lambda:FunctionUrlAuthType" = "AWS_IAM"
+          }
+        }
+      },
+      {
+        Effect   = "Allow"
+        Action   = "lambda:InvokeFunction"
+        Resource = aws_lambda_function.dio.arn
+        Condition = {
+          Bool = {
+            "lambda:InvokedViaFunctionUrl" = "true"
           }
         }
       }

@@ -331,6 +331,9 @@ why the `aws_lambda_function` resource points at a placeholder zip with
   state key) is fine, vs. a fully separate backend.
 - Whether `sommething`'s save flow needs `schema_version` handled explicitly
   (e.g. reject/upgrade unknown versions) or can just assume `1` for now.
-- Vercel OIDC issuer URL/thumbprint and the `sommething` Vercel project's
-  identity — needed to write the actual trust policy condition; Terraform
-  will scaffold with placeholder variables until these are supplied.
+- ~~Vercel OIDC issuer URL/thumbprint and the `sommething` Vercel project's
+  identity~~ — resolved: team issuer mode (`https://oidc.vercel.com/ljhursts-projects`),
+  audience `https://vercel.com/ljhursts-projects` (Vercel's default; not
+  `sts.amazonaws.com`, which only applies with a custom `audience` passed to
+  `awsCredentialsProvider`). Trust policy accepts `production`, `preview`,
+  and `development` environments.
