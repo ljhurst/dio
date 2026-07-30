@@ -66,12 +66,11 @@ variable "vercel_oidc_thumbprint" {
 }
 
 variable "vercel_oidc_audience" {
-  description = "Expected 'aud' claim on Vercel-issued OIDC tokens"
+  description = "Expected 'aud' claim on Vercel-issued OIDC tokens. Vercel's default (team issuer mode) is 'https://vercel.com/[TEAM_SLUG]' — 'sts.amazonaws.com' only applies if the app code passes a custom `audience` to awsCredentialsProvider."
   type        = string
-  default     = "sts.amazonaws.com"
 }
 
-variable "vercel_oidc_subject" {
-  description = "Expected 'sub' claim identifying the sommething Vercel project/environment (exact format from Vercel docs)"
-  type        = string
+variable "vercel_oidc_subjects" {
+  description = "Vercel 'sub' claim patterns (StringLike) allowed to assume the invoke role — one per trusted environment (production/preview/development)"
+  type        = list(string)
 }
