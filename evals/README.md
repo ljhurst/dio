@@ -14,8 +14,12 @@ See `cases/README.md`.
 ## Running
 
 ```bash
-DIO_ANTHROPIC_API_KEY=... uv run python -m evals.runner
+aws sso login --profile dio-deploy
+AWS_PROFILE=dio-deploy uv run python -m evals.runner
 ```
+
+The key is read from SSM (`/dio/anthropic-api-key`), the same place the Lambda
+reads it.
 
 Prints a PASS/FAIL line per case (with the specific fields that mismatched
 on failure), then overall and per-field accuracy. Exits non-zero if any
