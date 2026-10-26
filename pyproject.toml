@@ -1,6 +1,6 @@
 [project]
 name = "dio"
-version = "0.1.0"
+version = "0.1.1"
 description = "Wine label scanning service — vision extraction + enrichment for sommething"
 readme = "README.md"
 license = "MIT"
