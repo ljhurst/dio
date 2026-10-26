@@ -17,9 +17,9 @@ uv run mypy
 The Lambda reads config via `dio.config.Settings` (env vars, prefix `DIO_`):
 
 - `DIO_ANTHROPIC_API_KEY_PARAM`: SSM SecureString holding the Anthropic key
-  (default `/dio/anthropic-api-key`); the Lambda reads it at cold start
-- `DIO_ANTHROPIC_API_KEY`: the key itself, for local runs such as the evals;
-  when set, SSM is not read
+  (default `/dio/anthropic-api-key`); the Lambda reads it at cold start. Local
+  runs, such as the evals, read the same parameter with AWS credentials that
+  can read `/dio/*` (the `dio-deploy` SSO profile).
 - `DIO_ANTHROPIC_MODEL` (default `claude-haiku-4-5`)
 
 ## Deployment

@@ -6,21 +6,9 @@ from dio import config
 
 @pytest.fixture(autouse=True)
 def clear_caches(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("DIO_ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("DIO_ANTHROPIC_API_KEY_PARAM", raising=False)
     config.get_settings.cache_clear()
     config.get_anthropic_api_key.cache_clear()
-
-
-def test_api_key_from_environment_skips_ssm(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("DIO_ANTHROPIC_API_KEY", "env-key")
-
-    def fail(*args: object, **kwargs: object) -> str:
-        raise AssertionError("SSM must not be read when the key is in the environment")
-
-    monkeypatch.setattr(parameters, "get_parameter", fail)
-
-    assert config.get_anthropic_api_key() == "env-key"
 
 
 def test_api_key_read_from_ssm_once(monkeypatch: pytest.MonkeyPatch) -> None:

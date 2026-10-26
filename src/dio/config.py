@@ -7,7 +7,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="DIO_")
 
-    anthropic_api_key: str | None = None
     anthropic_api_key_param: str = "/dio/anthropic-api-key"
     anthropic_model: str = "claude-haiku-4-5"
 
@@ -19,7 +18,6 @@ def get_settings() -> Settings:
 
 @lru_cache
 def get_anthropic_api_key() -> str:
-    settings = get_settings()
-    if settings.anthropic_api_key:
-        return settings.anthropic_api_key
-    return str(parameters.get_parameter(settings.anthropic_api_key_param, decrypt=True))
+    return str(
+        parameters.get_parameter(get_settings().anthropic_api_key_param, decrypt=True)
+    )
