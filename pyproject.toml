@@ -1,6 +1,6 @@
 [project]
 name = "dio"
-version = "0.1.1"
+version = "0.2.0"
 description = "Wine label scanning service — vision extraction + enrichment for sommething"
 readme = "README.md"
 license = "MIT"
@@ -19,6 +19,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "boto3>=1.43.118",
     "mypy>=2.4.0",
     "pre-commit>=4.7.0",
     "pytest>=9.1.1",

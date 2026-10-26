@@ -1,0 +1,26 @@
+---
+name: Deploy
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    uses: ljhurst/stych/.github/workflows/terraform.yml@v1
+    with:
+      plan-role-arn: arn:aws:iam::755958650241:role/stych/dio-ci-plan
+      apply-role-arn: arn:aws:iam::755958650241:role/stych/dio-ci-apply
+      working-directory: terraform
+      build-command: scripts/build_lambda.sh
+      setup-uv: true

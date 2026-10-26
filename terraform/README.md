@@ -1,36 +1,21 @@
 # Terraform
 
-Reuses the same patterns as `aboutme`'s AWS setup: shared `lj-tf-state` S3
-backend, GitHub OIDC deploy role, placeholder-zip Lambda so Terraform
-doesn't fight CI over `source_code_hash`.
+Shared `lj-tf-state` S3 backend. CI plans on every pull request and applies on
+merge to `main` through stych's `terraform.yml`; see the root README.
 
-## First-time setup
+`terraform.tfvars` holds only non-secret values and is committed. The
+Anthropic key lives in SSM (`/dio/anthropic-api-key`) and is never in
+Terraform.
 
-```bash
-cp terraform.tfvars.example terraform.tfvars
-# fill in terraform.tfvars — anthropic_api_key at minimum to get a plan;
-# vercel_oidc_* values are required before apply actually succeeds (see
-# PLAN.md open questions)
+## Running locally
 
-terraform init
-terraform plan
-```
-
-Lambda code is deployed by CI (see `.github/workflows/ci.yml`), not by
-Terraform. The `archive_file` data source in `lambda.tf` generates a
-placeholder zip on every `plan`/`apply` so `terraform apply` has something
-to upload on first run; `lifecycle.ignore_changes` on `filename` and
-`source_code_hash` means Terraform never fights CI over the real deployed
-code afterwards.
-
-Before running against a real account, check whether the account-level
-GitHub Actions OIDC provider already exists (e.g. created by `aboutme`'s
-Terraform):
+Build the Lambda zip first; Terraform uploads it and hashes it to detect code
+changes:
 
 ```bash
-aws iam list-open-id-connect-providers
+scripts/build_lambda.sh
+AWS_PROFILE=luke-hurst-admin terraform -chdir=terraform init
+AWS_PROFILE=luke-hurst-admin terraform -chdir=terraform plan
 ```
 
-If it does, set `manage_github_oidc_provider = false` and
-`github_oidc_provider_arn` to the existing ARN in `terraform.tfvars` —
-creating it twice in one AWS account fails with `EntityAlreadyExists`.
+The build is reproducible, so an unchanged tree plans with no changes.

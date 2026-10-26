@@ -1,5 +1,6 @@
 resource "aws_iam_role" "lambda_exec" {
-  name = "lj-dio-lambda-exec"
+  name                 = "dio-lambda-exec"
+  permissions_boundary = local.boundary_arn
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -10,6 +11,29 @@ resource "aws_iam_role" "lambda_exec" {
         Service = "lambda.amazonaws.com"
       }
     }]
+  })
+}
+
+locals {
+  anthropic_api_key_param = "/dio/anthropic-api-key"
+  boundary_arn            = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/stych/dio-boundary"
+}
+
+data "aws_caller_identity" "current" {}
+
+resource "aws_iam_role_policy" "lambda_exec_ssm" {
+  name = "read-anthropic-api-key"
+  role = aws_iam_role.lambda_exec.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "ssm:GetParameter"
+        Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter${local.anthropic_api_key_param}"
+      }
+    ]
   })
 }
 
@@ -33,82 +57,6 @@ resource "aws_iam_role_policy" "lambda_exec_logs" {
   })
 }
 
-# --- GitHub Actions OIDC (CI deploy) ---
-#
-# The GitHub Actions OIDC provider (url = token.actions.githubusercontent.com)
-# is an AWS-account-level resource — only one can exist per account per URL.
-# If `aboutme`'s Terraform has already created it in this account, creating
-# it again here will fail with EntityAlreadyExists. Check first
-# (`aws iam list-open-id-connect-providers`) and set
-# `manage_github_oidc_provider = false` + `github_oidc_provider_arn` to the
-# existing one if so.
-
-resource "aws_iam_openid_connect_provider" "github_actions" {
-  count = var.manage_github_oidc_provider ? 1 : 0
-
-  url             = "https://token.actions.githubusercontent.com"
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
-}
-
-locals {
-  github_oidc_provider_arn = (
-    var.manage_github_oidc_provider
-    ? aws_iam_openid_connect_provider.github_actions[0].arn
-    : var.github_oidc_provider_arn
-  )
-
-  github_repo_owner = split("/", var.github_repo)[0]
-  github_repo_name  = split("/", var.github_repo)[1]
-
-  github_actions_oidc_condition = {
-    StringEquals = {
-      "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-    }
-    StringLike = {
-      "token.actions.githubusercontent.com:sub" = [
-        "repo:${var.github_repo}:ref:refs/heads/${var.github_actions_deploy_branch}",
-        "repo:${local.github_repo_owner}@*/${local.github_repo_name}@*:ref:refs/heads/${var.github_actions_deploy_branch}",
-      ]
-    }
-  }
-}
-
-resource "aws_iam_role" "github_actions_deploy" {
-  name = "lj-dio-github-actions-deploy"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = ["sts:AssumeRoleWithWebIdentity", "sts:TagSession"]
-      Principal = {
-        Federated = local.github_oidc_provider_arn
-      }
-      Condition = local.github_actions_oidc_condition
-    }]
-  })
-}
-
-resource "aws_iam_role_policy" "github_actions_deploy_lambda" {
-  name = "deploy-lambda-code"
-  role = aws_iam_role.github_actions_deploy.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "lambda:UpdateFunctionCode",
-          "lambda:GetFunction"
-        ]
-        Resource = aws_lambda_function.dio.arn
-      }
-    ]
-  })
-}
-
 # --- Vercel OIDC (sommething -> this Lambda's Function URL) ---
 #
 # Placeholder issuer/audience/subject values live in variables.tf and must
@@ -124,7 +72,8 @@ resource "aws_iam_openid_connect_provider" "vercel" {
 }
 
 resource "aws_iam_role" "sommething_invoke" {
-  name = "lj-dio-sommething-invoke"
+  name                 = "dio-sommething-invoke"
+  permissions_boundary = local.boundary_arn
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
