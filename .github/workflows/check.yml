@@ -17,3 +17,16 @@ jobs:
       terraform-version: "1.17.0"
       setup-uv: true
       setup-command: uv sync --locked
+
+  test:
+    uses: ljhurst/stych/.github/workflows/test.yml@v1
+    with:
+      command: uv run pytest -q
+      setup-command: uv sync --locked
+      setup-uv: true
+      paths: |
+        src/**
+        tests/**
+        pyproject.toml
+        uv.lock
+        .github/workflows/check.yml
