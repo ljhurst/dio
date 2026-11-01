@@ -11,10 +11,10 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "anthropic>=0.125.0",
-    "aws-lambda-powertools>=3.36.0",
+    "aws-lambda-powertools>=3.37.0",
     "aws-xray-sdk>=2.15.0",
     "pydantic>=2.14.1",
-    "pydantic-settings>=2.16.0",
+    "pydantic-settings>=2.16.1",
 ]
 
 [dependency-groups]
@@ -24,7 +24,7 @@ dev = [
     "pre-commit>=4.7.0",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
-    "ruff>=0.17.1",
+    "ruff>=0.17.2",
 ]
 
 [build-system]
