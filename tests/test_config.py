@@ -1,40 +1,43 @@
 import pytest
-from aws_lambda_powertools.utilities import parameters
+from pydantic import ValidationError
 
 from dio import config
+from dio.vision.anthropic_client import AnthropicFederation
+
+PREFIX = "DIO_ANTHROPIC_FEDERATION__"
 
 
 @pytest.fixture(autouse=True)
 def clear_caches(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("DIO_ANTHROPIC_API_KEY_PARAM", raising=False)
+    for name in ("RULE_ID", "ORGANIZATION_ID", "SERVICE_ACCOUNT_ID", "WORKSPACE_ID"):
+        monkeypatch.delenv(PREFIX + name, raising=False)
     config.get_settings.cache_clear()
-    config.get_anthropic_api_key.cache_clear()
 
 
-def test_api_key_read_from_ssm_once(monkeypatch: pytest.MonkeyPatch) -> None:
-    calls: list[tuple[str, bool]] = []
+def test_federation_reads_the_lambda_environment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv(PREFIX + "RULE_ID", "fdrl_1")
+    monkeypatch.setenv(PREFIX + "ORGANIZATION_ID", "org_1")
+    monkeypatch.setenv(PREFIX + "SERVICE_ACCOUNT_ID", "svac_1")
+    monkeypatch.setenv(PREFIX + "WORKSPACE_ID", "wrkspc_1")
 
-    def get_parameter(name: str, decrypt: bool = False) -> str:
-        calls.append((name, decrypt))
-        return "ssm-key"
-
-    monkeypatch.setattr(parameters, "get_parameter", get_parameter)
-
-    assert config.get_anthropic_api_key() == "ssm-key"
-    assert config.get_anthropic_api_key() == "ssm-key"
-    assert calls == [("/dio/anthropic-api-key", True)]
+    assert config.get_settings().anthropic_federation == AnthropicFederation(
+        rule_id="fdrl_1",
+        organization_id="org_1",
+        service_account_id="svac_1",
+        workspace_id="wrkspc_1",
+    )
 
 
-def test_api_key_param_name_is_configurable(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("DIO_ANTHROPIC_API_KEY_PARAM", "/dio/other")
-    names: list[str] = []
+def test_federation_is_none_when_unconfigured() -> None:
+    assert config.get_settings().anthropic_federation is None
 
-    def get_parameter(name: str, decrypt: bool = False) -> str:
-        names.append(name)
-        return "k"
 
-    monkeypatch.setattr(parameters, "get_parameter", get_parameter)
+def test_federation_fails_loudly_when_partially_configured(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv(PREFIX + "RULE_ID", "fdrl_1")
 
-    config.get_anthropic_api_key()
-
-    assert names == ["/dio/other"]
+    with pytest.raises(ValidationError):
+        config.get_settings()

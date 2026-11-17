@@ -15,14 +15,13 @@ resource "aws_iam_role" "lambda_exec" {
 }
 
 locals {
-  anthropic_api_key_param = "/dio/anthropic-api-key"
-  boundary_arn            = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/stych/dio-boundary"
+  boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/stych/dio-boundary"
 }
 
 data "aws_caller_identity" "current" {}
 
-resource "aws_iam_role_policy" "lambda_exec_ssm" {
-  name = "read-anthropic-api-key"
+resource "aws_iam_role_policy" "lambda_exec_anthropic_identity" {
+  name = "anthropic-identity-token"
   role = aws_iam_role.lambda_exec.id
 
   policy = jsonencode({
@@ -30,8 +29,13 @@ resource "aws_iam_role_policy" "lambda_exec_ssm" {
     Statement = [
       {
         Effect   = "Allow"
-        Action   = "ssm:GetParameter"
-        Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter${local.anthropic_api_key_param}"
+        Action   = "sts:GetWebIdentityToken"
+        Resource = "*"
+        Condition = {
+          "ForAllValues:StringEquals" = {
+            "sts:IdentityTokenAudience" = ["https://api.anthropic.com"]
+          }
+        }
       }
     ]
   })

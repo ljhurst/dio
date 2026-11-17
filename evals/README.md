@@ -18,8 +18,7 @@ aws sso login --profile dio-deploy
 AWS_PROFILE=dio-deploy uv run python -m evals.runner
 ```
 
-The key is read from SSM (`/dio/anthropic-api-key`), the same place the Lambda
-reads it.
+Sign in with `ant auth login`, or export `ANTHROPIC_API_KEY`.
 
 Prints a PASS/FAIL line per case (with the specific fields that mismatched
 on failure), then overall and per-field accuracy. Exits non-zero if any

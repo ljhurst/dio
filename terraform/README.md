@@ -4,8 +4,9 @@ Shared `lj-tf-state` S3 backend. CI plans on every pull request and applies on
 merge to `main` through stych's `terraform.yml`; see the root README.
 
 `terraform.tfvars` holds only non-secret values and is committed. The
-Anthropic key lives in SSM (`/dio/anthropic-api-key`) and is never in
-Terraform.
+Lambda authenticates to Anthropic through workload identity federation, so
+there is no Anthropic secret in Terraform or SSM; `anthropic_federation` holds
+only Console IDs.
 
 ## Running locally
 

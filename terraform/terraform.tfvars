@@ -12,3 +12,11 @@ vercel_oidc_subjects = [
   "owner:ljhursts-projects:project:sommething:environment:preview",
   "owner:ljhursts-projects:project:sommething:environment:development",
 ]
+
+# Settings > Workload identity in the Claude Console
+anthropic_federation = {
+  rule_id            = "fdrl_01Ng9tq3G4ZaU8bDSjsCL6iZ"
+  organization_id    = "7eff1b18-ebc4-4ba7-95f9-7b55fcb7356e"
+  service_account_id = "svac_017J8tkSNZMLyPTr5aTdPFVX"
+  workspace_id       = "wrkspc_01EuFUBWXk22cvkqe2vVzeLi"
+}

@@ -3,13 +3,18 @@ from __future__ import annotations
 import base64
 import json
 from collections.abc import Callable
+from unittest.mock import MagicMock
 
 import anthropic
+import pytest
 
+from dio import handler as handler_module
+from dio.config import Settings
 from dio.enrichment import Enricher
 from dio.errors import VisionExtractionError
 from dio.handler import handle_event
 from dio.models import EnrichmentResult, VisionExtraction
+from dio.vision.anthropic_client import AnthropicFederation
 from tests.conftest import VALID_BASE64_JPEG, FakeMessage, FakeTextBlock
 
 MODEL = "claude-haiku-4-5"
@@ -148,3 +153,33 @@ def test_handle_event_succeeds_with_warning_when_enrichment_fails(
     body = json.loads(response["body"])
     assert body["enrichment"] is None
     assert body["meta"]["warnings"] == ["enrichment_failed"]
+
+
+def test_handler_builds_its_client_from_the_configured_federation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    federation = AnthropicFederation(
+        rule_id="fdrl_1", organization_id="org_1", service_account_id="svac_1"
+    )
+    received: list[AnthropicFederation | None] = []
+
+    def fake_get_client(
+        passed: AnthropicFederation | None = None,
+    ) -> anthropic.Anthropic:
+        received.append(passed)
+        return MagicMock(spec=anthropic.Anthropic)
+
+    monkeypatch.setattr(
+        handler_module,
+        "get_settings",
+        lambda: Settings(anthropic_federation=federation),
+    )
+    monkeypatch.setattr(handler_module, "get_client", fake_get_client)
+    monkeypatch.setattr(
+        handler_module, "handle_event", lambda *_, **__: {"statusCode": 200}
+    )
+
+    response = handler_module.handler.__wrapped__({}, MagicMock())  # type: ignore[attr-defined]
+
+    assert response == {"statusCode": 200}
+    assert received == [federation]

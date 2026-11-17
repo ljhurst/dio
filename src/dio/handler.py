@@ -8,7 +8,7 @@ from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from pydantic import ValidationError
 
-from dio.config import get_anthropic_api_key, get_settings
+from dio.config import get_settings
 from dio.enrichment import Enricher, stub_enrich
 from dio.errors import DioError
 from dio.models import (
@@ -19,6 +19,7 @@ from dio.models import (
     VisionExtraction,
 )
 from dio.utils.images import decode_images
+from dio.vision.anthropic_client import get_client
 from dio.vision.client import extract_label
 
 logger = Logger()
@@ -29,7 +30,7 @@ tracer = Tracer()
 @tracer.capture_lambda_handler
 def handler(event: dict[str, Any], context: LambdaContext) -> dict[str, Any]:
     settings = get_settings()
-    client = anthropic.Anthropic(api_key=get_anthropic_api_key())
+    client = get_client(settings.anthropic_federation)
 
     return handle_event(
         event, client=client, enricher=stub_enrich, model=settings.anthropic_model
