@@ -3,8 +3,9 @@ from pathlib import Path
 
 import anthropic
 
-from dio.config import get_anthropic_api_key, get_settings
+from dio.config import get_settings
 from dio.models import ExtractionRequest
+from dio.vision.anthropic_client import get_client
 from dio.vision.client import extract_label
 from evals.compare import compare_case
 from evals.loader import load_cases, load_images
@@ -17,7 +18,7 @@ CASES_DIR = Path(__file__).parent / "cases"
 def main() -> None:
     settings = get_settings()
 
-    client = anthropic.Anthropic(api_key=get_anthropic_api_key())
+    client = get_client()
 
     cases = load_cases(CASES_DIR)
     case_results = [_run_case(case, client, settings.anthropic_model) for case in cases]

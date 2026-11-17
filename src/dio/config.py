@@ -1,23 +1,17 @@
 from functools import lru_cache
 
-from aws_lambda_powertools.utilities import parameters
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from dio.vision.anthropic_client import AnthropicFederation
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="DIO_")
+    model_config = SettingsConfigDict(env_prefix="DIO_", env_nested_delimiter="__")
 
-    anthropic_api_key_param: str = "/dio/anthropic-api-key"
     anthropic_model: str = "claude-haiku-4-5"
+    anthropic_federation: AnthropicFederation | None = None
 
 
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-
-
-@lru_cache
-def get_anthropic_api_key() -> str:
-    return str(
-        parameters.get_parameter(get_settings().anthropic_api_key_param, decrypt=True)
-    )

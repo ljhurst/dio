@@ -289,7 +289,7 @@ resolution.
 Scaffolded: `src/dio/` (models, errors, images, prompts, vision, enrichment
 stub, handler), `tests/` (18 tests, all passing), `pyproject.toml`
 (uv/ruff/mypy config), `terraform/` (validated with `terraform validate`,
-not yet applied — needs real `anthropic_api_key` and the Vercel OIDC values
+not yet applied — needs the Anthropic federation IDs and the Vercel OIDC values
 below), `.github/workflows/ci.yml` (lint/type/test on every push+PR;
 build+deploy on `main`/`workflow_dispatch`, gated behind `lint-and-test`
 passing).

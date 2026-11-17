@@ -8,8 +8,11 @@ resource "aws_lambda_function" "dio" {
 
   environment {
     variables = {
-      "DIO_ANTHROPIC_API_KEY_PARAM" = local.anthropic_api_key_param
-      "DIO_ANTHROPIC_MODEL"         = var.anthropic_model
+      "DIO_ANTHROPIC_MODEL"                          = var.anthropic_model
+      "DIO_ANTHROPIC_FEDERATION__RULE_ID"            = var.anthropic_federation.rule_id
+      "DIO_ANTHROPIC_FEDERATION__ORGANIZATION_ID"    = var.anthropic_federation.organization_id
+      "DIO_ANTHROPIC_FEDERATION__SERVICE_ACCOUNT_ID" = var.anthropic_federation.service_account_id
+      "DIO_ANTHROPIC_FEDERATION__WORKSPACE_ID"       = var.anthropic_federation.workspace_id
     }
   }
 

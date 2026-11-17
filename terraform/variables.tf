@@ -19,6 +19,36 @@ variable "anthropic_model" {
   default     = "claude-haiku-4-5"
 }
 
+variable "anthropic_federation" {
+  description = "Workload identity IDs from the Claude Console that let the Lambda's role exchange an AWS-signed token for Anthropic access. Not secret."
+  type = object({
+    rule_id            = string
+    organization_id    = string
+    service_account_id = string
+    workspace_id       = string
+  })
+
+  validation {
+    condition     = can(regex("^fdrl_\\w+$", var.anthropic_federation.rule_id))
+    error_message = "rule_id must be a federation rule ID (fdrl_...)."
+  }
+
+  validation {
+    condition     = can(regex("^svac_\\w+$", var.anthropic_federation.service_account_id))
+    error_message = "service_account_id must be a service account ID (svac_...)."
+  }
+
+  validation {
+    condition     = can(regex("^wrkspc_\\w+$", var.anthropic_federation.workspace_id))
+    error_message = "workspace_id must be a workspace ID (wrkspc_...)."
+  }
+
+  validation {
+    condition     = can(regex("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", var.anthropic_federation.organization_id))
+    error_message = "organization_id must be the organization's UUID."
+  }
+}
+
 variable "lambda_package_path" {
   description = "Zip built by scripts/build_lambda.sh"
   type        = string
